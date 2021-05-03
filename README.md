@@ -10,4 +10,4 @@ https://jonzamora.dev/Lab5/
 
 ## Part 2:
 
-LINK TO YOUR PART 2 REPOSITORY
+https://github.com/rahuldadlani03/github-actions-for-ci/issues/7#issue-874202664
