@@ -2,6 +2,26 @@
 
 const img = new Image(); // used to load image from <input> and draw to canvas
 
+// get user-image element and context
+const canvas = document.getElementById(elementId="user-image");
+const context = canvas.getContext(contextId="2d");
+
+// initialize button variables
+const btnRead = document.querySelector("[type='button']");
+const btnClear = document.querySelector("[type='reset']");
+const btnGenerate = document.querySelector("[type='submit']");
+
+// initialize related page component variables
+const inputImage = document.getElementById("image-input");
+const generateMeme = document.getElementById("generate-meme");
+const volumeGroup = document.getElementById("volume-group");
+const voiceSelection = document.getElementById("voice-selection");
+
+// speech synthesis variable initialization
+const speechSynth = window.speechSynthesis;
+let speechVoices = [];
+let speechVolume = document.querySelector("[type='range']").value / 100;
+
 // Fires whenever the img object loads a new image (such as with img.src =)
 img.addEventListener('load', () => {
   // TODO
@@ -10,6 +30,128 @@ img.addEventListener('load', () => {
   // - Fill the whole Canvas with black first to add borders on non-square images, then draw on top
   // - Clear the form when a new image is selected
   // - If you draw the image to canvas here, it will update as soon as a new image is selected
+
+  // using the canvas height and width variables, clear the canvas context
+  context.clearRect(x=0, y=0, w=canvas.width, h=canvas.height);
+
+  // toggle button states into their appropriate configurations
+  btnRead.disabled = true;
+  btnClear.disabled = true;
+  btnGenerate.disabled = false;
+
+  // populate canvas context with black coloring
+  context.fillStyle = "black";
+  context.fillRect(x=0, y=0, w=canvas.width, h=canvas.height);
+
+  // get canvas and image dimensions
+  let dimensions = getDimmensions(canvasWidth=canvas.width, canvasHeight=canvas.height, imageWidth=img.width, imageHeight=img.height);
+
+  // draw input image on canvas
+  context.drawImage(image=img, dx=dimensions.startX, dy=dimensions.startY, dw=dimensions.width, dh=dimensions.height);
+
+});
+
+inputImage.addEventListener('change', () => {
+  // load input image and set text alternative for image
+  img.src = URL.createObjectURL(inputImage.files[0]);
+  img.alt = inputImage.files[0].name;
+});
+
+generateMeme.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  // get top and bottom text fields
+  let textTop = document.getElementById("text-top").value;
+  let textBottom = document.getElementById("text-bottom").value;
+
+  // set text context parameters
+  context.font = "30px Impact"
+  context.fillStyle = "white";
+  context.textAlign = "center";
+
+  // draw top and bottom text fields
+  context.fillText(text=textTop, x=canvas.width / 2, y=50);
+  context.fillText(text=textBottom, x=canvas.width / 2, y=canvas.height - 50);
+
+  // re-toggle buttons
+  btnRead = false;
+  btnClear = false;
+  btnGenerate = true;
+});
+
+btnClear.addEventListener("click", () => {
+  // clear canvas
+  context.clearRect(x=0, y=0, w=canvas.width, h=canvas.height);
+
+  // re-toggle buttons
+  btnRead = true;
+  btnClear = true;
+  btnGenerate = false;
+});
+
+btnRead.addEventListener("click", () => {
+  // combine top and bottom text fields
+  let textCombined = document.getElementById("text-top").value + " " + document.getElementById("text-bottom").value;
+
+  // set speech synthesis details
+  let speech = new SpeechSynthesisUtterance(textCombined);
+  speech.voice = speechVoices[voiceSelection.selectedOptions[0].getAttribute("voices-idx")];
+  speech.volume = speechVolume;
+  speechSynth.speak(speech);
+});
+
+/*
+ * function to populate the voice list
+ * code adaptation based on example from: https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
+ */
+function populateVoiceList() {
+  voices = speechSynth.getVoices();
+  voiceSelection.remove(0); // remove "No available voice options"
+  
+  for (let voice = 0; voice < voices.length; voice++) {
+    let voiceChoice = document.createElement("option");
+    voiceChoice.textContent = voices[voice].name + " (" + voices[voice].lang + ")";
+
+    if (voices[voice].default) {
+      voiceChoice.textContent += " -- [DEFAULT]";
+    }
+
+    voiceChoice.setAttribute("voices-idx", voice);
+    voiceChoice.setAttribute("data-name", voices[voice].name);
+    voiceChoice.setAttribute("data-lang", voices[voice].lang);
+    
+    voiceSelection.appendChild(voiceChoice);
+  }
+  voiceSelection.disabled = false;
+}
+
+populateVoiceList();
+
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoiceList;
+}
+
+volumeGroup.addEventListener("input", () => {
+  let vol = document.querySelector("[type='range']").value;
+  speechVolume = vol / 100;
+
+  let volIcon = document.querySelectorAll("img")[0];
+
+  if (vol == 0) {
+    volIcon.src = "icons/volume-level-0.svg";
+  }
+
+  else if (vol <= 33) {
+    volIcon.src = "icons/volume-level-1.svg";
+  }
+
+  else if (vol <= 66) {
+    volIcon.src = "icons/volume-level-2.svg";
+  }
+
+  else {
+    volIcon.src = "icons/volume-level-3.svg";
+  }
 });
 
 /**
