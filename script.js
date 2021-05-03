@@ -3,8 +3,8 @@
 const img = new Image(); // used to load image from <input> and draw to canvas
 
 // get user-image element and context
-const canvas = document.getElementById(elementId="user-image");
-const context = canvas.getContext(contextId="2d");
+const canvas = document.getElementById("user-image");
+const context = canvas.getContext("2d");
 
 // initialize button variables
 const btnRead = document.querySelector("[type='button']");
@@ -32,7 +32,7 @@ img.addEventListener('load', () => {
   // - If you draw the image to canvas here, it will update as soon as a new image is selected
 
   // using the canvas height and width variables, clear the canvas context
-  context.clearRect(x=0, y=0, w=canvas.width, h=canvas.height);
+  context.clearRect(0, 0, canvas.width, canvas.height);
 
   // toggle button states into their appropriate configurations
   btnRead.disabled = true;
@@ -41,13 +41,13 @@ img.addEventListener('load', () => {
 
   // populate canvas context with black coloring
   context.fillStyle = "black";
-  context.fillRect(x=0, y=0, w=canvas.width, h=canvas.height);
+  context.fillRect(0, 0, canvas.width, canvas.height);
 
   // get canvas and image dimensions
-  let dimensions = getDimmensions(canvasWidth=canvas.width, canvasHeight=canvas.height, imageWidth=img.width, imageHeight=img.height);
+  let dimensions = getDimmensions(canvas.width, canvas.height, img.width, img.height);
 
   // draw input image on canvas
-  context.drawImage(image=img, dx=dimensions.startX, dy=dimensions.startY, dw=dimensions.width, dh=dimensions.height);
+  context.drawImage(img, dimensions.startX, dimensions.startY, dimensions.width, dimensions.height);
 
 });
 
@@ -70,18 +70,18 @@ generateMeme.addEventListener('submit', (evt) => {
   context.textAlign = "center";
 
   // draw top and bottom text fields
-  context.fillText(text=textTop, x=canvas.width / 2, y=50);
-  context.fillText(text=textBottom, x=canvas.width / 2, y=canvas.height - 50);
+  context.fillText(textTop, canvas.width/2, 50);
+  context.fillText(textBottom, canvas.width/2, canvas.height-50);
 
   // re-toggle buttons
-  btnRead = false;
-  btnClear = false;
-  btnGenerate = true;
+  btnRead.disabled = false;
+  btnClear.disabled = false;
+  btnGenerate.disabled = true;
 });
 
 btnClear.addEventListener("click", () => {
   // clear canvas
-  context.clearRect(x=0, y=0, w=canvas.width, h=canvas.height);
+  context.clearRect(0, 0, canvas.width, canvas.height);
 
   // re-toggle buttons
   btnRead = true;
@@ -105,7 +105,7 @@ btnRead.addEventListener("click", () => {
  * code adaptation based on example from: https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis
  */
 function populateVoiceList() {
-  voices = speechSynth.getVoices();
+  const voices = speechSynth.getVoices();
   voiceSelection.remove(0); // remove "No available voice options"
   
   for (let voice = 0; voice < voices.length; voice++) {
