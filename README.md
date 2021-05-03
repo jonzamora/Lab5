@@ -6,7 +6,7 @@
 
 ## Part 1:
 
-LINK TO YOUR PUBLISHED SITE
+https://jonzamora.dev/Lab5/
 
 ## Part 2:
 
